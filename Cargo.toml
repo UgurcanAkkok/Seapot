@@ -1,0 +1,14 @@
+[package]
+name = "seapot"
+version = "0.1.0"
+authors = ["Uğurcan Akkök <ucak_gestalt@protonmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+#librespot = "0.1.0"
+#clap = "2.33.0"
+tui = { version = "0.8", default-features = false, features = ['crossterm'] }
+#tokio-core = "0.1.17"
+crossterm = "0.14.2"
