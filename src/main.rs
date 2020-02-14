@@ -4,8 +4,15 @@ use crossterm::{
     terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
-use std::{env, io, sync::{mpsc, Arc, Mutex, }, thread, time::Duration};
+use std::{
+    env, io,
+    sync::{mpsc, Arc, Mutex},
+    thread,
+    time::Duration,
+};
 use tokio_core::reactor::Core;
+
+use seapot::{Seapot, MusicPlayer};
 
 fn main() {
     terminal::enable_raw_mode().unwrap();
@@ -16,9 +23,11 @@ fn main() {
     let password = env::var("SPOTIFY_PASSWORD")
         .expect("Can not get spotify password from environment variables.");
 
-    let mut app = seapot::Seapot::new(username, password);
-    //app.play_track("4uLU6hMCjMI75M1A2tKUQC");
-    println!("Played the song, moving on");
+    let mut app = Seapot::new();
+    thread::spawn(|| {
+        let mut player = MusicPlayer::new(username, password);
+        player.play_track("4uLU6hMCjMI75M1A2tKUQC");
+    });
     let (event_sender, event_reciever) = mpsc::channel();
     stdout.execute(EnterAlternateScreen).unwrap();
     thread::spawn(move || loop {
@@ -30,6 +39,7 @@ fn main() {
     });
 
     loop {
+        app.draw();
         if let Ok(key) = event_reciever.recv() {
             match key.code {
                 KeyCode::Char('q') => {
@@ -40,6 +50,5 @@ fn main() {
                 _ => (),
             }
         }
-        app.draw();
     }
 }
