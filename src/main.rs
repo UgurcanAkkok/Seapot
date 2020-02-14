@@ -1,55 +1,45 @@
 mod seapot;
-
-use std::{
-    io::{self, /*Write*/},
-    sync::mpsc,
-    thread,
-    time::Duration,
+use crossterm::{
+    event::{self, Event, KeyCode},
+    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
+    ExecutableCommand,
 };
-
-use crossterm::event::{
-    self, 
-//    poll, 
-    Event, 
-    KeyCode, 
-//    KeyEvent
-};
-//use crossterm::execute;
-use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
-use crossterm::ExecutableCommand;
-//use tui::backend::CrosstermBackend;
-//use tui::layout::{Alignment, Constraint, Direction, Layout};
-//use tui::style::{Color, Modifier, Style};
-//use tui::widgets::{Block, Borders, Paragraph, Text, Widget};
-//use tui::Terminal;
+use std::{env, io, sync::{mpsc, Arc, Mutex, }, thread, time::Duration};
+use tokio_core::reactor::Core;
 
 fn main() {
     terminal::enable_raw_mode().unwrap();
     let mut stdout = io::stdout();
-    stdout.execute(EnterAlternateScreen).unwrap();
 
-    let (tx, rx) = mpsc::channel();
+    let username = env::var("SPOTIFY_USERNAME")
+        .expect("Can not get spotify username from environment variables.");
+    let password = env::var("SPOTIFY_PASSWORD")
+        .expect("Can not get spotify password from environment variables.");
+
+    let mut app = seapot::Seapot::new(username, password);
+    //app.play_track("4uLU6hMCjMI75M1A2tKUQC");
+    println!("Played the song, moving on");
+    let (event_sender, event_reciever) = mpsc::channel();
+    stdout.execute(EnterAlternateScreen).unwrap();
     thread::spawn(move || loop {
         if event::poll(Duration::from_millis(250)).unwrap() {
             if let Event::Key(key) = event::read().unwrap() {
-                tx.send(key).unwrap();
+                event_sender.send(key).unwrap();
             }
         }
     });
 
-    let mut app = seapot::Seapot::new();
     loop {
-        app.draw();
-        match rx.recv() {
-            Ok(key) => match key.code {
+        if let Ok(key) = event_reciever.recv() {
+            match key.code {
                 KeyCode::Char('q') => {
                     terminal::disable_raw_mode().unwrap();
                     stdout.execute(LeaveAlternateScreen).unwrap();
                     return;
                 }
                 _ => (),
-            },
-            _ => (),
+            }
         }
+        app.draw();
     }
 }

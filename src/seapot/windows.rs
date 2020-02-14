@@ -1,4 +1,4 @@
-use crate::seapot::palette;
+use super::palette;
 use std::io::Stdout;
 use tui::{
     backend::CrosstermBackend,
