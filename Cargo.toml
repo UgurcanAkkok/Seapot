@@ -8,8 +8,7 @@ edition = "2018"
 
 [dependencies]
 librespot = "0.1.1"
-#clap = "2.33.0"
+clap = "2.33.0"
 tui = { version = "0.8", default-features = false, features = ['crossterm'] }
 tokio-core = "0.1.17"
 crossterm = "0.14.2"
-futures = "0.1.0"

@@ -10,18 +10,43 @@ use std::{
     thread,
     time::Duration,
 };
-
+use clap::{Arg, App,};
 use seapot::{Seapot, MusicPlayer};
 
 fn main() {
+    //Parsing cli args
+    let config_cli = App::new("Seapot")
+        .version("0.0.1")
+        .author("Uğurcan Akkök - akkokugurcan@gmail.com")
+        .about("Listen to spotify from the conformity of your favorite terminal")
+        .arg(Arg::with_name("username")
+             .short("u")
+             .long("username")
+             .env("SPOTIFY_USERNAME")
+             .help("Your spotify account's username")
+             .takes_value(true)
+             .required(true))
+        .arg(Arg::with_name("password")
+             .short("p")
+             .long("password")
+             .env("SPOTIFY_PASSWORD")
+             .help("Your spotify account's password")
+             .takes_value(true)
+             .required(true))
+        .get_matches();
+
+    let username = match config_cli.value_of("username") {
+        Some(u) => u.to_string(),
+        None => panic!("No username available"),
+    };
+
+    let password = match config_cli.value_of("password") {
+        Some(p) => p.to_string(),
+        None => panic!("No password available"),
+    };
+
     terminal::enable_raw_mode().unwrap();
     let mut stdout = io::stdout();
-
-    let username = env::var("SPOTIFY_USERNAME")
-        .expect("Can not get spotify username from environment variables.");
-    let password = env::var("SPOTIFY_PASSWORD")
-        .expect("Can not get spotify password from environment variables.");
-
     let mut app = Seapot::new();
     stdout.execute(EnterAlternateScreen).unwrap();
     thread::spawn(|| {
