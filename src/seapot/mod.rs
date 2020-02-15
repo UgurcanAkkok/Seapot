@@ -76,7 +76,6 @@ impl Seapot {
     }
 
     pub fn draw(&mut self) {
-        self.terminal.clear().unwrap();
         self.terminal.hide_cursor().unwrap();
         let page = &self.page;
         self.terminal

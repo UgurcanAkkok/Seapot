@@ -39,7 +39,7 @@ fn main() {
 
     loop {
         app.draw();
-        if let Ok(key) = event_reciever.recv() {
+        if let Ok(key) = event_reciever.try_recv() {
             match key.code {
                 KeyCode::Char('q') => {
                     terminal::disable_raw_mode().unwrap();
