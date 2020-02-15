@@ -1,4 +1,3 @@
-use futures::sync::mpsc::UnboundedReceiver;
 use std::io::{self};
 
 use tui::{backend::CrosstermBackend, Terminal};
@@ -8,12 +7,12 @@ use librespot::{
         authentication::Credentials,
         config::SessionConfig,
         session::Session,
-        spotify_id::{SpotifyId, SpotifyIdError},
+        spotify_id::{SpotifyId, },
     },
     playback::{
         audio_backend,
         config::PlayerConfig,
-        player::{Player, PlayerEvent},
+        player::{Player, },
     },
 };
 use tokio_core::reactor::Core;
@@ -77,7 +76,6 @@ impl Seapot {
     }
 
     pub fn draw(&mut self) {
-        // Unnecessary clear every time draw called?
         self.terminal.clear().unwrap();
         self.terminal.hide_cursor().unwrap();
         let page = &self.page;

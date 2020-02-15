@@ -6,11 +6,10 @@ use crossterm::{
 };
 use std::{
     env, io,
-    sync::{mpsc, Arc, Mutex},
+    sync::{mpsc, },
     thread,
     time::Duration,
 };
-use tokio_core::reactor::Core;
 
 use seapot::{Seapot, MusicPlayer};
 
@@ -24,12 +23,12 @@ fn main() {
         .expect("Can not get spotify password from environment variables.");
 
     let mut app = Seapot::new();
+    stdout.execute(EnterAlternateScreen).unwrap();
     thread::spawn(|| {
         let mut player = MusicPlayer::new(username, password);
         player.play_track("4uLU6hMCjMI75M1A2tKUQC");
     });
     let (event_sender, event_reciever) = mpsc::channel();
-    stdout.execute(EnterAlternateScreen).unwrap();
     thread::spawn(move || loop {
         if event::poll(Duration::from_millis(250)).unwrap() {
             if let Event::Key(key) = event::read().unwrap() {
