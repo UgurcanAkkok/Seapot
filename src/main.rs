@@ -67,14 +67,17 @@ fn main() {
 
     loop {
         app.draw();
-        if let Ok(key) = event_reciever.try_recv() {
+        if let Ok(key) = event_reciever.recv() {
             match key.code {
                 KeyCode::Char('q') => {
                     terminal::disable_raw_mode().unwrap();
                     stdout.execute(LeaveAlternateScreen).unwrap();
                     return;
                 },
-                KeyCode::Enter => app.page_liked_songs(),
+                KeyCode::Char('s') => {
+                    app.synchronize_all();
+                },
+                KeyCode::Enter => app.homepage(),
                 _ => (),
             }
         }
