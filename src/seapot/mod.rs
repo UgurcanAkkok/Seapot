@@ -10,9 +10,11 @@ use rspotify::spotify::{
     util::get_token,
     client::Spotify,
     oauth2::{SpotifyClientCredentials, SpotifyOAuth},
-    model::track::SavedTrack,
 };
 
+const SCOPES : [&'static str; 1] = [
+    "user-library-read",
+];
 // Visual part of the program, i.e. pages and 
 // terminal backend. Drawing is done by this struct
 pub struct Seapot {
@@ -32,7 +34,7 @@ impl Seapot {
             .client_id("897b20ba14694706abc9f6dce9d86609")
             .client_secret("9245bbebbd424d3eae3b271df0b4ee29")
             .redirect_uri("http://localhost:8888/callback")
-            .scope("user-library-read")
+            .scope(&SCOPES.join(" "))
             .build();
 
         let spotify;
