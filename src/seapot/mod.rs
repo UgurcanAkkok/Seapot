@@ -23,14 +23,12 @@ const SCOPES: [&'static str; 1] = ["user-library-read"];
 
 struct WindowManager {
     pub liked_songs: LikedSongs,
-    pub message: Message,
     pub welcome: Welcome,
 }
 impl WindowManager {
     pub fn new() -> WindowManager {
         WindowManager {
             liked_songs: LikedSongs::new(),
-            message: Message::new(),
             welcome: Welcome::new(),
         }
     }
@@ -87,9 +85,8 @@ impl Seapot {
         }
     }
 
-    pub fn synchronize_all(&mut self) {
-        self.wm.message.set_message("Syncing the account..".to_string(), MessageLevel::Info);
-        self.wm.liked_songs.synchronize(&self.spotify)
+    pub fn get_liked_songs_more(&mut self) {
+        self.wm.liked_songs.get_next_page(&self.spotify);
     }
 
     pub fn draw(&mut self) {
@@ -101,17 +98,12 @@ impl Seapot {
                 Page::Welcome => wm.welcome.draw(&mut f),
                 Page::HomePage => {
                     let chunks = Layout::default()
-                        .constraints([Constraint::Min(5), Constraint::Length(3)].as_ref())
+                        .constraints([Constraint::Min(5)].as_ref())
                         .split(f.size());
                     wm.liked_songs.draw(&mut f, chunks[0]);
-                    wm.message.draw(&mut f, chunks[1]);
                 }
             })
             .unwrap();
     }
 
-    //pub fn process_event(&self, key_event: KeyEvent){
-    //    match key_event {
-
-    //}
 }

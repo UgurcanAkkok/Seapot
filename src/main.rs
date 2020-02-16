@@ -75,7 +75,7 @@ fn main() {
                     return;
                 },
                 KeyCode::Char('s') => {
-                    app.synchronize_all();
+                    app.get_liked_songs_more();
                 },
                 KeyCode::Enter => app.homepage(),
                 _ => (),
