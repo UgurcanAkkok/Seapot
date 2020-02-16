@@ -8,9 +8,9 @@ use tui::{
     Frame,
 };
 use rspotify::spotify::{
-    util::get_token,
+    //util::get_token,
     client::Spotify,
-    oauth2::{SpotifyClientCredentials, SpotifyOAuth},
+    //oauth2::{SpotifyClientCredentials, SpotifyOAuth},
     model::track::SavedTrack,
 };
 
@@ -56,7 +56,7 @@ impl LikedSongs {
         SelectableList::default()
             .items(&text)
             .block(Block::default().title("LikedSongs").borders(Borders::ALL))
-            .select(Some(1))
+            .select(Some(0))
             .style(Style::default().fg(palette::WHITE).bg(palette::BLACK))
             .highlight_style(Style::default().fg(palette::GREEN).bg(palette::BLACK))
             .highlight_symbol("⚫")
