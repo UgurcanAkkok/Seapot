@@ -5,13 +5,16 @@ use crossterm::{
     ExecutableCommand,
 };
 use std::{
-    env, io,
+    io,
     sync::{mpsc, },
     thread,
     time::Duration,
 };
 use clap::{Arg, App,};
-use seapot::{Seapot, MusicPlayer};
+use seapot::{
+    Seapot,
+    musicplayer::MusicPlayer,
+};
 
 fn main() {
     //Parsing cli args
@@ -45,9 +48,9 @@ fn main() {
         None => panic!("No password available"),
     };
 
+    let mut app = Seapot::new();
     terminal::enable_raw_mode().unwrap();
     let mut stdout = io::stdout();
-    let mut app = Seapot::new();
     stdout.execute(EnterAlternateScreen).unwrap();
     thread::spawn(|| {
         let mut player = MusicPlayer::new(username, password);
@@ -70,7 +73,8 @@ fn main() {
                     terminal::disable_raw_mode().unwrap();
                     stdout.execute(LeaveAlternateScreen).unwrap();
                     return;
-                }
+                },
+                KeyCode::Enter => app.page_liked_songs(),
                 _ => (),
             }
         }

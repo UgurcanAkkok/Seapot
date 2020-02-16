@@ -12,3 +12,4 @@ clap = "2.33.0"
 tui = { version = "0.8", default-features = false, features = ['crossterm'] }
 tokio-core = "0.1.17"
 crossterm = "0.14.2"
+rspotify = "0.8.0"
