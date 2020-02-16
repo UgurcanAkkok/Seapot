@@ -78,7 +78,7 @@ fn main() {
                     app.get_liked_songs_more();
                 },
                 KeyCode::Enter => app.homepage(),
-                _ => (),
+                key => app.process_key(key),
             }
         }
     }

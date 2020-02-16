@@ -4,9 +4,9 @@ use tui::{
     layout::{Constraint, Layout},
     Terminal,
 };
-//use crossterm::{
-//    event::{Event, KeyCode, KeyEvent},
-//};
+use crossterm::{
+    event::{KeyCode,},
+};
 
 pub mod musicplayer;
 mod palette;
@@ -21,15 +21,31 @@ use rspotify::spotify::{
 
 const SCOPES: [&'static str; 1] = ["user-library-read"];
 
+enum Window {
+    Welcome,
+    LikedSongs,
+}
+
 struct WindowManager {
     pub liked_songs: LikedSongs,
     pub welcome: Welcome,
+    focused: Window,
 }
 impl WindowManager {
     pub fn new() -> WindowManager {
         WindowManager {
             liked_songs: LikedSongs::new(),
             welcome: Welcome::new(),
+            focused: Window::Welcome,
+        }
+    }
+    pub fn focuse(&mut self, w: Window){
+        self.focused = w;
+    }
+    pub fn process_key(&mut self, key: KeyCode){
+        match self.focused {
+            Window::Welcome => (),
+            Window::LikedSongs => self.liked_songs.key(key),
         }
     }
 }
@@ -81,6 +97,7 @@ impl Seapot {
             Page::HomePage => (),
             _ => {
                 self.page = Page::HomePage;
+                self.wm.focuse(Window::LikedSongs);
             }
         }
     }
@@ -106,4 +123,7 @@ impl Seapot {
             .unwrap();
     }
 
+    pub fn process_key(&mut self, key: KeyCode){
+        self.wm.process_key(key);
+    }
 }
