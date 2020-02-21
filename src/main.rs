@@ -1,20 +1,12 @@
 mod seapot;
+use clap::{App, Arg};
 use crossterm::{
     event::{self, Event, KeyCode},
     terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
-use std::{
-    io,
-    sync::{mpsc, },
-    thread,
-    time::Duration,
-};
-use clap::{Arg, App,};
-use seapot::{
-    Seapot,
-    musicplayer::MusicPlayer,
-};
+use seapot::{musicplayer::MusicPlayer, Seapot};
+use std::{io, sync::mpsc, thread, time::Duration};
 
 fn main() {
     //Parsing cli args
@@ -22,20 +14,24 @@ fn main() {
         .version("0.0.1")
         .author("Uğurcan Akkök - akkokugurcan@gmail.com")
         .about("Listen to spotify from the conformity of your favorite terminal")
-        .arg(Arg::with_name("username")
-             .short("u")
-             .long("username")
-             .env("SPOTIFY_USERNAME")
-             .help("Your spotify account's username")
-             .takes_value(true)
-             .required(true))
-        .arg(Arg::with_name("password")
-             .short("p")
-             .long("password")
-             .env("SPOTIFY_PASSWORD")
-             .help("Your spotify account's password")
-             .takes_value(true)
-             .required(true))
+        .arg(
+            Arg::with_name("username")
+                .short("u")
+                .long("username")
+                .env("SPOTIFY_USERNAME")
+                .help("Your spotify account's username")
+                .takes_value(true)
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("password")
+                .short("p")
+                .long("password")
+                .env("SPOTIFY_PASSWORD")
+                .help("Your spotify account's password")
+                .takes_value(true)
+                .required(true),
+        )
         .get_matches();
 
     let username = match config_cli.value_of("username") {
@@ -52,10 +48,8 @@ fn main() {
     terminal::enable_raw_mode().unwrap();
     let mut stdout = io::stdout();
     stdout.execute(EnterAlternateScreen).unwrap();
-    thread::spawn(|| {
-        let mut player = MusicPlayer::new(username, password);
-        player.play_track("4uLU6hMCjMI75M1A2tKUQC");
-    });
+    //let mut player = MusicPlayer::new(username, password);
+    //player.play_track("4uLU6hMCjMI75M1A2tKUQC");
     let (event_sender, event_reciever) = mpsc::channel();
     thread::spawn(move || loop {
         if event::poll(Duration::from_millis(250)).unwrap() {
@@ -73,10 +67,10 @@ fn main() {
                     terminal::disable_raw_mode().unwrap();
                     stdout.execute(LeaveAlternateScreen).unwrap();
                     return;
-                },
+                }
                 KeyCode::Char('s') => {
                     app.get_liked_songs_more();
-                },
+                }
                 KeyCode::Enter => app.homepage(),
                 key => app.process_key(key),
             }

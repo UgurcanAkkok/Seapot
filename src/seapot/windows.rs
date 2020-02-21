@@ -1,17 +1,13 @@
 use super::palette;
+use crossterm::event::KeyCode;
 use rspotify::spotify::{client::Spotify, model::track::SavedTrack};
 use std::io::Stdout;
 use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Rect},
-    style::{
-        Style
-    },
+    style::Style,
     widgets::{Block, Borders, Paragraph, SelectableList, Text, Widget},
     Frame,
-};
-use crossterm::{
-    event::{KeyCode, },
 };
 
 pub type Backend = CrosstermBackend<Stdout>;
@@ -40,7 +36,11 @@ pub struct LikedSongs {
 
 impl LikedSongs {
     pub fn new() -> LikedSongs {
-        LikedSongs { song_list: vec![], page_number: 0, cursor: 0 }
+        LikedSongs {
+            song_list: vec![],
+            page_number: 0,
+            cursor: 0,
+        }
     }
     pub fn get_next_page(&mut self, rspotify_client: &Spotify) {
         let mut page = rspotify_client
@@ -50,23 +50,20 @@ impl LikedSongs {
         self.page_number += 1;
     }
 
-    pub fn key(&mut self, key: KeyCode){
+    pub fn key(&mut self, key: KeyCode) {
         match key {
             KeyCode::Up | KeyCode::Char('k') => {
                 if self.cursor != 0 {
                     self.cursor -= 1;
                 }
-            },
+            }
             KeyCode::Down | KeyCode::Char('j') => {
                 if self.cursor < self.song_list.len() {
                     self.cursor += 1;
                 }
-
-            },
-            _ => ()
-
+            }
+            _ => (),
         }
-
     }
 
     pub fn draw(&self, f: &mut Frame<Backend>, area: Rect) {

@@ -1,15 +1,15 @@
+use crossterm::event::KeyCode;
 use std::io::{self};
 use tui::{
     backend::CrosstermBackend,
     layout::{Constraint, Layout},
     Terminal,
 };
-use crossterm::{
-    event::{KeyCode,},
-};
 
 pub mod musicplayer;
 mod palette;
+mod windowmanager;
+use windowmanager::*;
 mod windows;
 use windows::*;
 
@@ -21,34 +21,6 @@ use rspotify::spotify::{
 
 const SCOPES: [&'static str; 1] = ["user-library-read"];
 
-enum Window {
-    Welcome,
-    LikedSongs,
-}
-
-struct WindowManager {
-    pub liked_songs: LikedSongs,
-    pub welcome: Welcome,
-    focused: Window,
-}
-impl WindowManager {
-    pub fn new() -> WindowManager {
-        WindowManager {
-            liked_songs: LikedSongs::new(),
-            welcome: Welcome::new(),
-            focused: Window::Welcome,
-        }
-    }
-    pub fn focuse(&mut self, w: Window){
-        self.focused = w;
-    }
-    pub fn process_key(&mut self, key: KeyCode){
-        match self.focused {
-            Window::Welcome => (),
-            Window::LikedSongs => self.liked_songs.key(key),
-        }
-    }
-}
 // Visual part of the program, i.e. pages and
 // terminal backend. Drawing is done by this struct
 pub struct Seapot {
@@ -56,6 +28,7 @@ pub struct Seapot {
     page: Page,
     spotify: Spotify,
     wm: WindowManager,
+    redraw: bool,
 }
 
 impl Seapot {
@@ -89,6 +62,7 @@ impl Seapot {
             page,
             spotify,
             wm,
+            redraw: true,
         }
     }
 
@@ -100,6 +74,7 @@ impl Seapot {
                 self.wm.focuse(Window::LikedSongs);
             }
         }
+        self.redraw = true;
     }
 
     pub fn get_liked_songs_more(&mut self) {
@@ -107,6 +82,9 @@ impl Seapot {
     }
 
     pub fn draw(&mut self) {
+        if self.redraw == false {
+            return;
+        }
         self.terminal.hide_cursor().unwrap();
         let page = &self.page;
         let wm = &self.wm;
@@ -123,7 +101,7 @@ impl Seapot {
             .unwrap();
     }
 
-    pub fn process_key(&mut self, key: KeyCode){
+    pub fn process_key(&mut self, key: KeyCode) {
         self.wm.process_key(key);
     }
 }
