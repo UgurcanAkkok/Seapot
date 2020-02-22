@@ -5,9 +5,25 @@ use crossterm::{
     terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
-use seapot::{musicplayer::MusicPlayer, Seapot};
+use seapot::{musicplayer::MusicPlayer, Seapot, Window};
 use std::{io, sync::mpsc, thread, time::Duration};
 
+struct PlayerCommand {
+    command: Box<dyn Fn(&mut MusicPlayer) + Send>,
+}
+impl PlayerCommand {
+    pub fn new<F>(f: F) -> PlayerCommand
+    where
+        F: Fn(&mut MusicPlayer) + 'static + Send,
+    {
+        PlayerCommand {
+            command: Box::new(f),
+        }
+    }
+    pub fn call(self, p: &mut MusicPlayer) {
+        (self.command)(p);
+    }
+}
 fn main() {
     //Parsing cli args
     let config_cli = App::new("Seapot")
@@ -48,9 +64,16 @@ fn main() {
     terminal::enable_raw_mode().unwrap();
     let mut stdout = io::stdout();
     stdout.execute(EnterAlternateScreen).unwrap();
-    //let mut player = MusicPlayer::new(username, password);
-    //player.play_track("4uLU6hMCjMI75M1A2tKUQC");
     let (event_sender, event_reciever) = mpsc::channel();
+    let (player_tx, player_rx) = mpsc::channel::<PlayerCommand>();
+    thread::spawn(move || {
+        let mut player = MusicPlayer::new(username, password);
+        loop {
+            if let Ok(cmd) = player_rx.recv() {
+                cmd.call(&mut player);
+            }
+        }
+    });
     thread::spawn(move || loop {
         if event::poll(Duration::from_millis(250)).unwrap() {
             if let Event::Key(key) = event::read().unwrap() {
@@ -71,7 +94,18 @@ fn main() {
                 KeyCode::Char('s') => {
                     app.get_liked_songs_more();
                 }
-                KeyCode::Enter => app.homepage(),
+                KeyCode::Enter => match app.wm.focused {
+                    Window::LikedSongs => {
+                        let track = &app.wm.liked_songs.song_list[app.wm.liked_songs.cursor];
+                        let track = track.track.uri.clone();
+                        let cmd = PlayerCommand::new(move |player: &mut MusicPlayer| {
+                            player.player.stop();
+                            player.play_track(track.as_str());
+                        });
+                        player_tx.send(cmd).unwrap();
+                    }
+                    _ => app.homepage(),
+                },
                 key => app.process_key(key),
             }
         }

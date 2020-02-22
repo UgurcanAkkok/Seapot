@@ -9,7 +9,7 @@ use tui::{
 pub mod musicplayer;
 mod palette;
 mod windowmanager;
-use windowmanager::*;
+pub use windowmanager::*;
 mod windows;
 use windows::*;
 
@@ -27,7 +27,7 @@ pub struct Seapot {
     terminal: Terminal<Backend>,
     page: Page,
     spotify: Spotify,
-    wm: WindowManager,
+    pub wm: WindowManager,
     redraw: bool,
 }
 

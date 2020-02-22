@@ -29,9 +29,9 @@ impl Welcome {
 }
 
 pub struct LikedSongs {
-    song_list: Vec<SavedTrack>,
-    page_number: u32,
-    cursor: usize,
+    pub song_list: Vec<SavedTrack>,
+    pub page_number: u32,
+    pub cursor: usize,
 }
 
 impl LikedSongs {
